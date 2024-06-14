@@ -1,10 +1,16 @@
 import type { KeyboardType, KeyType } from "./keyTypes";
 import Key from "./key";
 
-function Keyboard(keyboard: KeyboardType) {
+interface Props {
+    keyboard: KeyboardType;
+    OnClickFunc: (key: KeyType, secondary: boolean, tertiary: boolean) => Promise<void>;
+}
+
+function Keyboard({ keyboard, OnClickFunc }: Props) {
     return <div className="keyboard">
-        {/* @ts-ignore */}
-        {keyboard.keyboard.keys.map((key: KeyType) => { return <Key key={keys} secondary={false} tertiary={false} /> })}
+        {keyboard.keys.map((key: KeyType) => {
+            return <Key OnClickFunc={OnClickFunc} keyVal={key} secondary={false} tertiary={false} />
+        })}
     </div>
 }
 

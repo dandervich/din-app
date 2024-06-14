@@ -1,4 +1,4 @@
-use serialport;
+use serialport::{self, SerialPortInfo};
 
 // https://github.com/PyO3/pyo3
 // ^ investigate this option?
@@ -28,14 +28,18 @@ fn greet(name: &str) -> String {
 }
 
 #[tauri::command(rename_all = "snake_case")]
-fn current_input(ci: String) {
+fn current_input(ci: String) -> String {
     println!("the current input is: {}", ci);
-    let ports = serialport::available_ports().expect("No ports found!");
+    let ports: Vec<serialport::SerialPortInfo> =
+        serialport::available_ports().expect("No ports found!");
     println!("ports: {}", ports.len());
+    if ports.len() == 0 {
+        return "NO PORTS".to_string();
+    }
     for p in ports {
         println!("port: {}", p.port_name);
     }
-    println!("done");
+    return "DONE".to_string();
 }
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
