@@ -10,7 +10,7 @@ interface Props {
 
 function Key(props: Props) {
     let { keyVal, secondary, tertiary, OnClickFunc } = props;
-    return <button onClick={() => { OnClickFunc(keyVal, secondary, tertiary) }} className="key">{secondary ? keyVal.secondary : tertiary ? keyVal?.tertiary : keyVal.key}</button>
+    return <button key={keyVal.key} id={keyVal.key + ""} onClick={() => { OnClickFunc(keyVal, secondary, tertiary) }} className="key">{secondary && keyVal?.secondary ? keyVal.secondary : tertiary && keyVal?.tertiary ? keyVal?.tertiary : keyVal.key}</button>
 }
 
 

@@ -4,12 +4,15 @@ import Key from "./key";
 interface Props {
     keyboard: KeyboardType;
     OnClickFunc: (key: KeyType, secondary: boolean, tertiary: boolean) => Promise<void>;
+    secondary: boolean;
 }
 
-function Keyboard({ keyboard, OnClickFunc }: Props) {
+function Keyboard({ keyboard, OnClickFunc, secondary }: Props) {
     return <div className="keyboard">
         {keyboard.keys.map((key: KeyType) => {
-            return <Key OnClickFunc={OnClickFunc} keyVal={key} secondary={false} tertiary={false} />
+            if (key.key == "BR")
+                return <br />
+            return <Key OnClickFunc={OnClickFunc} keyVal={key} secondary={secondary} tertiary={false} />
         })}
     </div>
 }

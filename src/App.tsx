@@ -3,11 +3,11 @@ import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import Keyboard from "./components/keyboard";
 import { KeyType, KeyboardType } from "./components/keyTypes";
-
+import KeyJSON from "./assets/keys.json"
 function App() {
   const [currentInput, setCurrentInput] = useState("");
-
-  async function onChange(e: React.ChangeEvent<HTMLInputElement>) {
+  const [shiftClicked, setShiftClicked] = useState(false);
+  async function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
     setCurrentInput(e.target.value);
     // await invoke("current_input", { ci: e.target.value }); // eventually will run the AI model
   }
@@ -19,18 +19,27 @@ function App() {
     }
     algo();
   }, [currentInput])
-  console.log(currentInput);
-  const keysArr: KeyboardType = { keys: [{ key: "a", secondary: "A", tertiary: " " }, { key: "b", secondary: "B", tertiary: " " }] }
+  const keysArr: KeyboardType = KeyJSON;
   async function OnClickFunc(key: KeyType, secondary: boolean, tertiary: boolean) {
-    if (secondary) setCurrentInput(currentInput + key.secondary)
+    let CK = key.key
+    if (shiftClicked) {
+      CK = CK.toString().toUpperCase()
+    }
+    if (key.key == "Backspace") {
+      if (currentInput != null && currentInput.length > 0)
+        setCurrentInput(currentInput.substring(0, currentInput.length - 1))
+    } else if (key.key == "CapsLock") {
+      setShiftClicked(!shiftClicked);
+    }
+    else if (secondary) setCurrentInput(currentInput + key.secondary)
     else if (tertiary) setCurrentInput(currentInput + key.tertiary)
     else
-      setCurrentInput(currentInput + key.key)
+      setCurrentInput(currentInput + CK)
   }
   return (
     <div className="container">
-      <input type="text" onChange={onChange} value={currentInput} />
-      <Keyboard OnClickFunc={OnClickFunc} keyboard={keysArr} />
+      <textarea className="input" onChange={onChange} value={currentInput}> </textarea>
+      <Keyboard OnClickFunc={OnClickFunc} keyboard={keysArr} secondary={false} />
     </div>
   );
 };
