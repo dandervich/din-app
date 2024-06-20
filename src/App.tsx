@@ -37,8 +37,11 @@ function App() {
       setCurrentInput(currentInput + CK)
   }
   return (
+    // TODO: add navbar with logo and eventually we can put language settings there.
     <div className="container">
+      {/* TODO: add fixed predictions to bottom of the textarea */}
       <textarea className="input" onChange={onChange} value={currentInput}> </textarea>
+      {/* TODO: Change keyboard to a npm package to facilitate language change and functions :) */}
       <Keyboard OnClickFunc={OnClickFunc} keyboard={keysArr} secondary={false} />
     </div>
   );
