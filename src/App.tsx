@@ -1,48 +1,70 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
-import Keyboard from "./components/keyboard";
-import { KeyType, KeyboardType } from "./components/keyTypes";
-import KeyJSON from "./assets/keys.json"
+import Keyboard from "react-simple-keyboard";
+import "react-simple-keyboard/build/css/index.css";
 function App() {
-  const [currentInput, setCurrentInput] = useState("");
-  const [shiftClicked, setShiftClicked] = useState(false);
-  async function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-    setCurrentInput(e.target.value);
-    // await invoke("current_input", { ci: e.target.value }); // eventually will run the AI model
-  }
-  useEffect(() => {
-    let algo = async () => {
-      let algis = await invoke("current_input", { ci: currentInput }); // eventually will run the AI model
-      // if "NO PORTS" return error in connection to ai model
-      // else return data model suggestions.
+  // async function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
+  //   setCurrentInput(e.target.value);
+  //   // await invoke("current_input", { ci: e.target.value }); // eventually will run the AI model
+  // }
+  const [input, setInput] = useState("");
+  const [layout, setLayout] = useState("default");
+  const keyboard = useRef();
+
+  const onChange = async (input: any) => {
+    setInput(input);
+    console.log("Input changed", input);
+    console.log(await invoke("send_message", { message: input }));
+  };
+
+  const handleShift = () => {
+    const newLayoutName = layout === "default" ? "shift" : "default";
+    setLayout(newLayoutName);
+  };
+
+  const onKeyPress = (button: any) => {
+    console.log("Button pressed", button);
+
+    /**
+     * If you want to handle the shift and caps lock buttons
+     */
+    if (button === "{shift}" || button === "{lock}") handleShift();
+    // make an enter without using \n
+    if (button === "{enter}") {
+      // @ts-ignore
+      keyboard.current.setInput(input + "\n");
+      setInput(input + "\n")
     }
-    algo();
-  }, [currentInput])
-  const keysArr: KeyboardType = KeyJSON;
-  async function OnClickFunc(key: KeyType, secondary: boolean, tertiary: boolean) {
-    let CK = key.key
-    if (shiftClicked) {
-      CK = CK.toString().toUpperCase()
-    }
-    if (key.key == "Backspace") {
-      if (currentInput != null && currentInput.length > 0)
-        setCurrentInput(currentInput.substring(0, currentInput.length - 1))
-    } else if (key.key == "CapsLock") {
-      setShiftClicked(!shiftClicked);
-    }
-    else if (secondary) setCurrentInput(currentInput + key.secondary)
-    else if (tertiary) setCurrentInput(currentInput + key.tertiary)
-    else
-      setCurrentInput(currentInput + CK)
-  }
+  };
+
+  const onChangeInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const input = event.target.value;
+    setInput(input);
+    // @ts-ignore
+    keyboard.current.setInput(input);
+  };
+
   return (
     // TODO: add navbar with logo and eventually we can put language settings there.
-    <div className="container">
-      {/* TODO: add fixed predictions to bottom of the textarea */}
-      <textarea className="input" onChange={onChange} value={currentInput}> </textarea>
-      {/* TODO: Change keyboard to a npm package to facilitate language change and functions :) */}
-      <Keyboard OnClickFunc={OnClickFunc} keyboard={keysArr} secondary={false} />
+    <div className="wrapper">
+      <div className="container">
+        {/* TODO: add fixed predictions to bottom of the textarea */}
+        <div className="input-wrapper">
+          <textarea className="input" onChange={onChangeInput} value={input}> </textarea>
+          <div className="predictions">
+            <a className="prediction">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.</a>
+            <a className="prediction">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.</a>
+            <a className="prediction">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.</a>
+          </div>
+        </div>
+        <Keyboard
+          keyboardRef={r => (keyboard.current = r)}
+          layoutName={layout}
+          onChange={onChange}
+          onKeyPress={onKeyPress}
+        />
+      </div>
     </div>
   );
 };

@@ -14,6 +14,12 @@
   -webkit-text-size-adjust: 100%;
 }
 
+.wrapper {
+  display: flex;
+  justify-content: center;
+  width: 100vw;  
+  min-height: 100vh;
+}
 .container {
   margin: 0;
   padding-top: 10vh;
@@ -23,41 +29,54 @@
   align-items: center;
   text-align: center;
   max-height: 100vh;
-  max-width: 80vw;
+  width: 80vw;
 }
-
-input,
-.input,
-button {
-  border-radius: 8px;
-  border: 1px solid #126422;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  color: #126422;
-  background-color: #ffffff;
-  transition: border-color 0.25s;
-  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.2);
+.input-wrapper {
+  background-color: #D9D9D9;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  border: 4px solid #000000;
+  border-radius: 10px;
+  padding: 10px;
 }
-.input {
-  max-height: 50vh;
-  min-height: 20vh;
-  max-width: 80%;
-  width: 100%;
-  outline: none;
+.input-wrapper > textarea {
+  min-width: 100%;
+  min-height: 30vh;
+  resize: none;
   border: none;
+  background-color: #D9D9D9;
+  outline: none;
+  border-bottom: 1px solid #000;
+  margin-bottom: 1em;
 }
-button {
+.predictions {
+  display: flex;
+  justify-content: space-evenly;
+  align-items: center;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 1em;
+  background-color: #D9D9D9;
+  min-width: 100%;
+}
+.prediction {
+  max-width: 35vw;
+  background-color: #C7C7C7;
+  font-size: 12px;
+  border: .5px solid #000;
+  border-radius: 5px;
   cursor: pointer;
+  transition: .2s all ease;
 }
-.key {
-  margin: 2px;
+.prediction:hover {
+  background-color: #aaaaaa;
 }
-button:hover {
-  border-color: #396cd8;
-}
-button:active {
-  border-color: #396cd8;
-  background-color: #e8e8e8;
+@media (max-width: 768px) {
+  .container {
+    width: 100vw;
+  }
 }
