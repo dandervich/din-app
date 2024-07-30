@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from "react";
-import { invoke } from "@tauri-apps/api/core";
 import "./App.css";
 import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
@@ -10,12 +9,24 @@ function App() {
   // }
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState("default");
+  const [suggestions, setSuggestions] = useState([""]);
   const keyboard = useRef();
 
+  const getSuggestions = async (ct: string): Promise<string[]> => {
+    const res = await fetch("http://10.8.17.27:5000/autocomplete", {
+      method: "POST",
+      body: JSON.stringify({texto: ct}),
+      
+    })
+    const data = await res.json()
+    console.log(data)
+    return [""]
+  }
   const onChange = async (input: any) => {
     setInput(input);
     console.log("Input changed", input);
-    console.log(await invoke("send_message", { message: input }));
+    let suggestions: Awaited<string[]> = await getSuggestions(input)
+    setSuggestions(suggestions);
   };
 
   const handleShift = () => {
