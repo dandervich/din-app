@@ -13,20 +13,26 @@ function App() {
   const keyboard = useRef();
 
   const getSuggestions = async (ct: string): Promise<string[]> => {
-    const res = await fetch("http://10.8.17.27:5000/autocomplete", {
+    const res = await fetch("http://10.8.17.40:5000/autocomplete", {
       method: "POST",
       body: JSON.stringify({texto: ct}),
-      
+      mode: "no-cors",
+      headers: {
+        "Content-Type": "application/json",
+      }      
     })
     const data = await res.json()
-    console.log(data)
-    return [""]
+    console.log("data", data)
+    return data
   }
+  console.log("sug", suggestions)
   const onChange = async (input: any) => {
     setInput(input);
     console.log("Input changed", input);
-    let suggestions: Awaited<string[]> = await getSuggestions(input)
-    setSuggestions(suggestions);
+    let sug: Awaited<string[]> = await getSuggestions(input)
+    setSuggestions(sug);
+    console.log(sug)
+
   };
 
   const handleShift = () => {
