@@ -9,8 +9,9 @@ function App() {
   // }
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState("default");
-  const [suggestions, setSuggestions] = useState(["Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti."]);
+  const [suggestions, setSuggestions] = useState(["Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.1", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.2"]);
   const keyboard = useRef();
+  const [selectedSug, setSelectedSug] = useState(0)
 
   const getSuggestions = async (ct: string): Promise<string[]> => {
     const res = await fetch("http://10.8.17.10:5000/autocomplete", {
@@ -28,9 +29,10 @@ function App() {
   const onChange = async (input: any) => {
     setInput(input);
     console.log("Input changed", input);
-    let sug: Awaited<string[]> = await getSuggestions(input)
-    setSuggestions(sug);
-    console.log(sug)
+    if(input.length % 3 == 0) {
+      let sug: Awaited<string[]> = await getSuggestions(input)
+      setSuggestions(sug);
+    }
   };
 
   const handleShift = () => {
@@ -75,7 +77,7 @@ function App() {
           <div className="predictions">
             {
               suggestions.map((suggestion: string) => {
-                return <a onClick={predClick} className="prediction">{suggestion}</a>
+                  return <a onClick={predClick} className={"prediction "+ (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
               })
             }
           </div>
