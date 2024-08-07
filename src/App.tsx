@@ -25,7 +25,6 @@ function App() {
     console.log("data", data.text)
     return data.text
   }
-  console.log("sug", suggestions)
   const onChange = async (input: any) => {
     setInput(input);
     console.log("Input changed", input);
@@ -57,8 +56,7 @@ function App() {
 
   const predClick = (e: React.MouseEvent<HTMLElement>) => {
     const el = e.target as HTMLElement
-    setInput(input + el.innerText);
-    
+    setSelectedSug(el.id as unknown as number)
   }
   const onChangeInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const input = event.target.value;
@@ -66,7 +64,26 @@ function App() {
     // @ts-ignore
     keyboard.current.setInput(input);
   };
-
+  const tabAutCompletion = () => {
+    let arr = suggestions[selectedSug].slice()
+    let narr = arr.split(" ")
+    return narr[0]
+  }
+  useEffect(()=> {
+    document.addEventListener("keydown", (e)=> {
+      if(e.key == "Tab"){
+        e.stopImmediatePropagation();
+        e.preventDefault();
+        let word = tabAutCompletion()
+        console.log(input)
+        setInput(input + word + " ")
+        let sug = suggestions[selectedSug].split(" ")
+        sug.shift()
+        suggestions[selectedSug] = sug.join(" ")
+        setSuggestions(suggestions)
+      }
+    })
+  }, [input])
   return (
     // TODO: add navbar with logo and eventually we can put language settings there.
     <div className="wrapper">
@@ -76,8 +93,8 @@ function App() {
           <textarea className="input" onChange={onChangeInput} value={input}> </textarea>
           <div className="predictions">
             {
-              suggestions.map((suggestion: string) => {
-                  return <a onClick={predClick} className={"prediction "+ (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
+              suggestions.map((suggestion: string, key: number) => {
+                  return <a onClick={predClick} id={key as unknown as string} className={"prediction "+ (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
               })
             }
           </div>
