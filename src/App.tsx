@@ -46,7 +46,7 @@ function App() {
      * If you want to handle the shift and caps lock buttons
      */
     if (button === "{shift}" || button === "{lock}") handleShift();
-    // make an enter without using \n
+    // make0 an enter without using \n
     if (button === "{enter}") {
       // @ts-ignore
       keyboard.current.setInput(input + "\n");
@@ -65,6 +65,7 @@ function App() {
     keyboard.current.setInput(input);
   };
   const tabAutCompletion = () => {
+    // leave suggestions the same but remove previous word completions manually
     let arr = suggestions[selectedSug].slice()
     let narr = arr.split(" ")
     return narr[0]
@@ -72,16 +73,12 @@ function App() {
   useEffect(()=> {
     document.addEventListener("keydown", (e)=> {
       if(e.key == "Tab"){
-        e.stopImmediatePropagation()
         e.preventDefault();
         let word = tabAutCompletion()
+        console.log(input + word)
         setInput(input + word + " ")
-      // @ts-ignore
-        keyboard.current.setInput(input + word + " ")
-        let sug = suggestions[selectedSug].split(" ")
-        sug.shift()
-        suggestions[selectedSug] = sug.join(" ")
-        setSuggestions(suggestions)
+        // @ts-ignore
+        keyboard.current.value += word
       }
     })
   }, [input, suggestions])
