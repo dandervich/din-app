@@ -72,18 +72,19 @@ function App() {
   useEffect(()=> {
     document.addEventListener("keydown", (e)=> {
       if(e.key == "Tab"){
-        e.stopImmediatePropagation();
+        e.stopImmediatePropagation()
         e.preventDefault();
         let word = tabAutCompletion()
-        console.log(input)
         setInput(input + word + " ")
+      // @ts-ignore
+        keyboard.current.setInput(input + word + " ")
         let sug = suggestions[selectedSug].split(" ")
         sug.shift()
         suggestions[selectedSug] = sug.join(" ")
         setSuggestions(suggestions)
       }
     })
-  }, [input])
+  }, [input, suggestions])
   return (
     // TODO: add navbar with logo and eventually we can put language settings there.
     <div className="wrapper">
