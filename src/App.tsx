@@ -1,7 +1,8 @@
 import React, { AnchorHTMLAttributes, HTMLAttributeAnchorTarget, useEffect, useRef, useState } from "react";
-import "./App.css";
 import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
+import "./App.css";
+import dinLogo from "./assets/Mask group.svg"
 function App() {
   // async function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
   //   setCurrentInput(e.target.value);
@@ -16,10 +17,10 @@ function App() {
   const getSuggestions = async (ct: string): Promise<string[]> => {
     const res = await fetch("http://10.8.17.10:5000/autocomplete", {
       method: "POST",
-      body: JSON.stringify({texto: ct}),
+      body: JSON.stringify({ texto: ct }),
       headers: {
         "Content-Type": "application/json",
-      }      
+      }
     })
     const data = await res.json()
     console.log("data", data.text)
@@ -28,7 +29,7 @@ function App() {
   const onChange = async (input: any) => {
     setInput(input);
     console.log("Input changed", input);
-    if(input.length % 3 == 0) {
+    if (input.length % 3 == 0) {
       let sug: Awaited<string[]> = await getSuggestions(input)
       setSuggestions(sug);
     }
@@ -70,9 +71,9 @@ function App() {
     let narr = arr.split(" ")
     return narr[0]
   }
-  useEffect(()=> {
-    document.addEventListener("keydown", (e)=> {
-      if(e.key == "Tab"){
+  useEffect(() => {
+    document.addEventListener("keydown", (e) => {
+      if (e.key == "Tab") {
         e.preventDefault();
         let word = tabAutCompletion()
         console.log(input + word)
@@ -83,26 +84,30 @@ function App() {
     })
   }, [input, suggestions])
   return (
-    // TODO: add navbar with logo and eventually we can put language settings there.
-    <div className="wrapper">
-      <div className="container">
-        {/* TODO: add fixed predictions to bottom of the textarea */}
-        <div className="input-wrapper">
-          <textarea className="input" onChange={onChangeInput} value={input}> </textarea>
-          <div className="predictions">
-            {
-              suggestions.map((suggestion: string, key: number) => {
-                  return <a onClick={predClick} id={key as unknown as string} className={"prediction "+ (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
-              })
-            }
+    <div className="main-wrapper">
+      <nav id="logo-nav">
+        <img id="logo" src={dinLogo} alt="logo" />
+      </nav>
+      <div className="wrapper">
+        <div className="container">
+          {/* TODO: add fixed predictions to bottom of the textarea */}
+          <div className="input-wrapper">
+            <textarea className="input" onChange={onChangeInput} value={input}> </textarea>
+            <div className="predictions">
+              {
+                suggestions.map((suggestion: string, key: number) => {
+                  return <a onClick={predClick} id={key as unknown as string} className={"prediction " + (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
+                })
+              }
+            </div>
           </div>
+          <Keyboard
+            keyboardRef={r => (keyboard.current = r)}
+            layoutName={layout}
+            onChange={onChange}
+            onKeyPress={onKeyPress}
+          />
         </div>
-        <Keyboard
-          keyboardRef={r => (keyboard.current = r)}
-          layoutName={layout}
-          onChange={onChange}
-          onKeyPress={onKeyPress}
-        />
       </div>
     </div>
   );
