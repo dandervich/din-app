@@ -1,7 +1,7 @@
 {
   "productName": "din-app",
   "version": "0.0.0",
-  "identifier": "com.tauri.dev",
+  "identifier": "com.din.dev",
   "build": {
     "beforeDevCommand": "npm run dev",
     "devUrl": "http://localhost:1420",
@@ -12,8 +12,7 @@
     "windows": [
       {
         "title": "din-app",
-        "width": 800,
-        "height": 600
+        "maximized": true
       }
     ],
     "security": {
