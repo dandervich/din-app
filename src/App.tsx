@@ -10,12 +10,12 @@ function App() {
   // }
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState("default");
-  const [suggestions, setSuggestions] = useState(["Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.1", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.2"]);
+  const [suggestions, setSuggestions] = useState(["Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti."]);
   const keyboard = useRef();
   const [selectedSug, setSelectedSug] = useState(0)
 
   const getSuggestions = async (ct: string): Promise<string[]> => {
-    const res = await fetch("http://10.8.17.10:5000/autocomplete", {
+    const res = await fetch("http://172.20.184.35:5000/autocomplete", {
       method: "POST",
       body: JSON.stringify({ texto: ct }),
       headers: {
@@ -58,6 +58,7 @@ function App() {
   const predClick = (e: React.MouseEvent<HTMLElement>) => {
     const el = e.target as HTMLElement
     setSelectedSug(el.id as unknown as number)
+    setInput(input + suggestions[el.id as unknown as number])
   }
   const onChangeInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const input = event.target.value;
