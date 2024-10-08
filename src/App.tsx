@@ -104,6 +104,7 @@ function App() {
           </div>
           <Keyboard
             keyboardRef={r => (keyboard.current = r)}
+            theme={"hg-theme-default myTheme1"}
             layoutName={layout}
             onChange={onChange}
             onKeyPress={onKeyPress}
