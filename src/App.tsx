@@ -11,20 +11,21 @@ function App() {
   const [input, setInput] = useState("");
   const [layout, setLayout] = useState("default");
   const [suggestions, setSuggestions] = useState(["Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti.", "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Corrupti quod sequi quam sit. Ab, tempore assumenda alias incidunt quam voluptatibus labore eius et autem perferendis veniam suscipit odio odit corrupti."]);
-  const keyboard = useRef();
+  const keyboard = useRef(); 
   const [selectedSug, setSelectedSug] = useState(0)
 
   const getSuggestions = async (ct: string): Promise<string[]> => {
-    const res = await fetch("http://172.20.184.35:5000/autocomplete", {
+    const res = await fetch("http://10.4.16.172:3000/autocomplete", {
       method: "POST",
       body: JSON.stringify({ texto: ct }),
       headers: {
         "Content-Type": "application/json",
       }
     })
+    console.log(res)
     const data = await res.json()
-    console.log("data", data.text)
-    return data.text
+    console.log("data", data)
+    return data
   }
   const onChange = async (input: any) => {
     setInput(input);
@@ -96,7 +97,7 @@ function App() {
             <textarea className="input" onChange={onChangeInput} value={input}> </textarea>
             <div className="predictions">
               {
-                suggestions.map((suggestion: string, key: number) => {
+                suggestions?.map((suggestion: string, key: number) => {
                   return <a onClick={predClick} id={key as unknown as string} className={"prediction " + (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
                 })
               }
