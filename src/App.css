@@ -35,7 +35,7 @@ body, html {
   padding-top: 10vh;
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: space-around;
   align-items: center;
   text-align: center;
   max-height: 100vh;
@@ -47,20 +47,24 @@ body, html {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  border: 4px solid #126422;
+  /* border: 4px solid #21aa3c; */
+  /* box-shadow: 2px 2px 2px 2px rgba(0, 0, 0, 0.3); */
+  box-shadow:  -20px -20px 60px rgba(0, 0, 0, 0.3),
+             20px 20px 60px rgba(0, 0, 0, 0.3);
   border-radius: 10px;
   padding: 10px;
+  width: 100%;
 }
 .input-wrapper > textarea {
   width: 100%;
   min-height: 30vh;
   min-width: 40vw;
+  font-size: 1.75em;
   resize: none;
   border: none;
   background-color: #434343;
   color: white;
   outline: none;
-  border-bottom: 1px solid #126422;
   margin-bottom: 1em;
 }
 .predictions {
@@ -73,7 +77,11 @@ body, html {
   align-items: center;
   gap: 1em;
   background-color: #434343;
-  min-width: 100%;
+  min-width: 90%;
+  max-width: 100%;
+  overflow: hidden;
+  padding: 1em;
+  padding-top: 2em;
 }
 .simple-keyboard.myTheme1 {
   background-color: #323232;
@@ -83,7 +91,8 @@ body, html {
 }
 .simple-keyboard.myTheme1 .hg-button {
   background-color: #323232;
-  color: #00921D;
+  color: white;
+  text-transform: uppercase;
   outline: none;
 }
 .hg-rows, .react-simple-keyboard, .simple-keyboard, .hg-theme-default, .hg-layout-default {
@@ -93,6 +102,11 @@ body, html {
   background-color: #323232;
   border: 2px solid #B0B0B0;
 }
+.hg-layout-shift > .hg-rows > .hg-row > .hg-button-shift {
+  background-color: #fff;
+  color: #323232;
+  border: 2px solid #B0B0B0;
+}
 .hg-theme-default .hg-button.hg-activeButton{
   background: #434343;
 }
@@ -100,15 +114,19 @@ body, html {
   max-width: 35vw;
   background-color: #4A4A4A;
   font-size: 1.1em;
-  border: .5px solid #126422;
+  box-shadow:  -10px -10px 30px rgba(0, 0, 0, 0.3),
+             8px 8px 20px rgba(0, 0, 0, 0.3);
   border-radius: 5px;
   cursor: pointer;
   transition: .2s all ease;
   padding: .5em;
+  cursor: pointer;
+  font-size: 1.5em;
   color: white;
 }
 .prediction.active {
-  border: 2px solid #126422;
+  box-shadow:  -10px -10px 30px rgba(0, 0, 0, 0.3),
+             8px 8px 20px rgba(0, 0, 0, 0.3);
 }
 .prediction:hover {
   background-color: #333333;
@@ -116,7 +134,8 @@ body, html {
 #logo-nav {
   max-width: 100vw;
   position: fixed;
-  padding: 5px;
+  padding: 15px;
+  filter: drop-shadow(10px 2px 5px rgba(0, 0, 0, 0.3));
   top: 0;
   left: 0;
 }
