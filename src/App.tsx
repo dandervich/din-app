@@ -3,33 +3,85 @@ import Keyboard from "react-simple-keyboard";
 import "react-simple-keyboard/build/css/index.css";
 import "./App.css";
 import dinLogo from "./assets/Mask group.svg"
+import { GoogleGenerativeAI } from "@google/generative-ai"
+
+const genAI = new GoogleGenerativeAI("AIzaSyDqhabtnl-P-TByPWa5fuzOusFniWnbZfE")
+const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" })
+
+async function getSuggestionFromGemini(inputText: string): Promise<string> {
+  if (!genAI) {
+    console.error('API key no configurada')
+    return ''
+  }
+
+  try {
+    const prompt = `Completar esta palabra o frase, y ademas si ya esta empezada la palabra completarla, no escribirla de 0, que tu respuesta sea solo el completado: "${inputText}"`
+    const result = await model.generateContent(prompt)
+    const suggestion = result.response.text()
+    console.log('Sugerencia recibida de Gemini:', suggestion)
+    return suggestion.startsWith(inputText) ? suggestion.slice(inputText.length) : suggestion
+  } catch (error) {
+    console.error('Error al obtener sugerencia de Gemini:', error)
+    return ''
+  }
+}
+
 function App() {
-  // async function onChange(e: React.ChangeEvent<HTMLTextAreaElement>) {
-  //   setCurrentInput(e.target.value);
-  //   // await invoke("current_input", { ci: e.target.value }); // eventually will run the AI model
-  // }
   const [input, setInput] = useState("");
+  const [suggestionInput, setSuggestionInput] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false)
+  const inputRef = useRef<HTMLTextAreaElement>(null)
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null)
   const [layout, setLayout] = useState("default");
-  const [secsuggestions, setSecSuggestions] = useState("hola");
   const [suggestions, setSuggestions] = useState(["hola", "hola, todo bien", "hola, bien vos?"]);
   const keyboard = useRef();
+  const [secsuggestions, setSecSuggestions] = useState("hola");
   const [selectedSug, setSelectedSug] = useState(0)
 
-  const getSuggestions = async (ct: string): Promise<string[]> => {
-    const res = await fetch("http://172.20.184.35:3000/autocomplete", {
-      method: "POST",
-      body: JSON.stringify({ texto: ct }),
-      headers: {
-        "Content-Type": "application/json",
+  useEffect(() => {
+    if (input) {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
       }
-    })
-    const data = await res.json()
-    return data
-  }
+      timeoutRef.current = setTimeout(async () => {
+        setIsLoading(true)
+        try {
+          const geminiSuggestion = await getSuggestionFromGemini(input)
+          setSuggestionInput(geminiSuggestion)
+        } catch (error) {
+          console.error('Error al obtener sugerencia de Gemini:', error)
+          setSuggestionInput('')
+        } finally {
+          setIsLoading(false)
+        }
+      }, 300)
+    } else {
+      setSuggestionInput('')
+    }
+
+    const handleTabKey = (e: KeyboardEvent) => {
+      if (e.key === 'Tab' && suggestionInput) {
+        e.preventDefault();
+        const newInput = input + suggestionInput.trim();
+        setInput(newInput);
+        // @ts-ignore
+        keyboard.current?.setInput(newInput);
+        setSuggestionInput('');
+      }
+    };
+
+    document.addEventListener('keydown', handleTabKey);
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current)
+      }
+      document.removeEventListener('keydown', handleTabKey);
+    }
+  }, [input, suggestionInput])
+
   const inactivityTime = () => {
     var time = 0;
     window.onload = resetTimer;
-    // DOM Events
     var events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
     events.forEach(function (name) {
       document.addEventListener(name, resetTimer, true);
@@ -42,16 +94,28 @@ function App() {
         setSecSuggestions(sug[0]);
       }
       time = setTimeout(gs, 3000)
-      // 1000 milliseconds = 1 second
     }
   };
+
+  const getSuggestions = async (ct: string): Promise<string[]> => {
+    const res = await fetch("http://10.4.48.143:3000/autocomplete", {
+      method: "POST",
+      body: JSON.stringify({ texto: ct }),
+      headers: {
+        "Content-Type": "application/json",
+      }
+    })
+    const data = await res.json()
+    return data
+  }
+
   const onChange = async (input: any) => {
     setInput(input);
     console.log("Input changed", input);
-    if (input.length % 3 == 0) {
+
+    if (input.length % 3 === 0) {
       let sug: Awaited<string[]> = await getSuggestions(input)
       setSuggestions(sug);
-      setSecSuggestions(sug[0]);
     }
   };
 
@@ -60,81 +124,51 @@ function App() {
     setLayout(newLayoutName);
   };
 
-  const onKeyPress = (button: any) => {
+  const onKeyPress = async (button: any) => {
     console.log("Button pressed", button);
-
-    /**
-     * If you want to handle the shift and caps lock buttons
-    */
-    if (button === "{shift}" || button === "{lock}") handleShift();
-    // make0 an enter without using \n
-    if (button === "{enter}") {
+    if (button === "{tab}" && suggestionInput) {
+      const newInput = input + suggestionInput.trim();
+      setInput(newInput);
       // @ts-ignore
-      keyboard.current.setInput(input + "\n");
-      setInput(input + "\n")
+      keyboard.current?.setInput(newInput);
+      setSuggestionInput("");
+      return;
     }
-    if (button === "{bksp}") {
+
+    if (button === "{shift}" || button === "{lock}") handleShift();
+
+    if (button === "{enter}") {
+      const newInput = input + "\n";
+      setInput(newInput);
       // @ts-ignore
-      keyboard.current.setInput(input.slice(0, -1));
-      setInput(input.slice(0, -1))
+      keyboard.current?.setInput(newInput);
+    }
+
+    if (button === "{bksp}") {
+      const newInput = input.slice(0, -1);
+      setInput(newInput);
+      // @ts-ignore
+      keyboard.current?.setInput(newInput);
     }
   };
 
-  const predClick = (e: React.MouseEvent<HTMLElement>) => {
-    const el = e.target as HTMLElement
-    setSelectedSug(el.id as unknown as number)
-    // setInput(input + suggestions[el.id as unknown as number])
-    setInput(suggestions[el.id as unknown as number])
-    // @ts-ignore
-    keyboard.current.setInput(suggestions[el.id as unknown as number]);
-  }
   const onChangeInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     const input = event.target.value;
     setInput(input);
     // @ts-ignore
-    keyboard.current.setInput(input);
+    keyboard.current?.setInput(input);
   };
-  const tabAutCompletion = () => {
-    // leave suggestions the same but remove previous word completions manually
-    let arr = suggestions[selectedSug].slice()
-    let narr = arr.split(" ")
-    let secArr = secsuggestions.slice().split(" ")
-    // remove the first word
-    if (secArr.length >= 1) {
-      secArr.shift()
-      setSecSuggestions(secArr.join())
-      return narr[0]
-    } else {
-      setSecSuggestions("")
-      return ""
-    }
+
+  const predClick = (e: React.MouseEvent<HTMLElement>) => {
+    const el = e.target as HTMLElement;
+    const index = parseInt(el.id);
+    setSelectedSug(index);
+    const newInput = suggestions[index];
+    setInput(newInput);
+    // @ts-ignore
+    keyboard.current?.setInput(newInput);
   }
-  useEffect(() => {
-    // document.addEventListener("mouseover", () => {
-    //   inactivityTime()
-    // })
-    // document.addEventListener("keydown", (e) => {
-    //   if (e.key == "Tab") {
-    //     e.preventDefault();
-    //     let word = tabAutCompletion()
-    //     // check if input doesn't have any spaces
-    //     if (!input.includes(" ")) {
-    //       setInput(word + " ")
-    //       // @ts-ignore
-    //       keyboard.current.value = word + " "
-    //     }
-    //     else if (input.split(" ")[input.split(" ").length - 1].includes(word)) {
-    //       setInput(input.split(" ").slice(0, -1).join(" ") + word + " ")
-    //       // @ts-ignore
-    //       keyboard.current.value = input.split(" ").slice(0, -1).join(" ") + word + " "
-    //     } else {
-    //       setInput(input + word + " ")
-    //       // @ts-ignore
-    //       keyboard.current.value += word
-    //     }
-    //   }
-    // })
-  }, [input, suggestions])
+
   return (
     <div className="main-wrapper">
       <nav id="logo-nav">
@@ -142,15 +176,27 @@ function App() {
       </nav>
       <div className="wrapper">
         <div className="container">
-          {/* TODO: add fixed predictions to bottom of the textarea */}
-          <div className="input-wrapper">
-            <textarea className="input" onChange={onChangeInput} value={input}> </textarea>
+          <div className="input-wrapper relative">
+            <p className="input-sug">
+              {isLoading ? input : suggestionInput ? input + suggestionInput : input}
+            </p>
+            <textarea
+              ref={inputRef}
+              className="input"
+              onChange={onChangeInput}
+              value={input}
+            ></textarea>
             <div className="predictions">
-              {
-                suggestions?.map((suggestion: string, key: number) => {
-                  return <a onClick={predClick} id={key as unknown as string} className={"prediction " + (suggestions[selectedSug] == suggestion ? "active" : "")}>{suggestion}</a>
-                })
-              }
+              {suggestions?.map((suggestion: string, key: number) => (
+                <a
+                  key={key}
+                  onClick={predClick}
+                  id={key as unknown as string}
+                  className={"prediction " + (suggestions[selectedSug] == suggestion ? "active" : "")}
+                >
+                  {suggestion}
+                </a>
+              ))}
             </div>
           </div>
           <Keyboard
@@ -164,6 +210,6 @@ function App() {
       </div>
     </div>
   );
-};
+}
 
 export default App;
