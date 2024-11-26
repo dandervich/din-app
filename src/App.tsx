@@ -39,45 +39,36 @@ function App() {
   const [selectedSug, setSelectedSug] = useState(0)
 
   useEffect(() => {
+    // Solo hacer la solicitud si el input ha cambiado
     if (input) {
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
+
       timeoutRef.current = setTimeout(async () => {
-        setIsLoading(true)
+        setIsLoading(true);
         try {
-          const geminiSuggestion = await getSuggestionFromGemini(input)
-          setSuggestionInput(geminiSuggestion)
+          const geminiSuggestion = await getSuggestionFromGemini(input);
+          setSuggestionInput(geminiSuggestion);
         } catch (error) {
-          console.error('Error al obtener sugerencia de Gemini:', error)
-          setSuggestionInput('')
+          console.error("Error al obtener sugerencia de Gemini:", error);
+          setSuggestionInput("");
         } finally {
-          setIsLoading(false)
+          setIsLoading(false);
         }
-      }, 300)
+      }, 300); // 300ms de espera para evitar solicitudes rápidas
+
     } else {
-      setSuggestionInput('')
+      setSuggestionInput(""); // Si no hay texto, limpiar la sugerencia
     }
 
-    const handleTabKey = (e: KeyboardEvent) => {
-      if (e.key === 'Tab' && suggestionInput) {
-        e.preventDefault();
-        const newInput = input + suggestionInput.trim();
-        setInput(newInput);
-        // @ts-ignore
-        keyboard.current?.setInput(newInput);
-        setSuggestionInput('');
-      }
-    };
-
-    document.addEventListener('keydown', handleTabKey);
+    // Limpiar timeout cuando el componente se desmonte
     return () => {
       if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current)
+        clearTimeout(timeoutRef.current);
       }
-      document.removeEventListener('keydown', handleTabKey);
-    }
-  }, [input, suggestionInput])
+    };
+  }, [input]);
 
   const inactivityTime = () => {
     var time = 0;
@@ -97,6 +88,24 @@ function App() {
     }
   };
 
+  const handleTabKey = (e: KeyboardEvent) => {
+    if (e.key === 'Tab' && suggestionInput) {
+      e.preventDefault();
+      const newInput = input + suggestionInput.trim();
+      setInput(newInput);
+      // @ts-ignore
+      keyboard.current?.setInput(newInput);
+      setSuggestionInput('');
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('keydown', handleTabKey);
+    return () => {
+      document.removeEventListener('keydown', handleTabKey);
+    };
+  }, [input, suggestionInput]);
+
   const getSuggestions = async (ct: string): Promise<string[]> => {
     const res = await fetch("http://10.4.48.143:3000/autocomplete", {
       method: "POST",
@@ -106,6 +115,7 @@ function App() {
       }
     })
     const data = await res.json()
+    console.log(data)
     return data
   }
 

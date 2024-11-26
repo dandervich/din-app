@@ -75,6 +75,7 @@ body, html {
   justify-content: center;
   align-items: center;
   gap: 1em;
+  height: 15vh;
   background-color: #434343;
   min-width: 90%;
   max-width: 100%;
@@ -154,7 +155,7 @@ body, html {
 }
 .input-sug {
   position: absolute;
-  top: 13.45vh;
+  top: 11.1vh;
   font-size: 1.75em;
   color: white;
   left: 16.84vh;
